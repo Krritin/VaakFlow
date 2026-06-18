@@ -41,7 +41,7 @@ def test_missing_severity_triggers_clarify():
     })
     body = r.json()
     assert body["needs_clarification"] is True
-    assert "severity" in body["reply"].lower()
+    assert "severe" in body["reply"].lower()  # "How severe is it — low/medium/..."
 
 
 def test_query_uses_graph_and_rag():
@@ -109,8 +109,10 @@ def test_dashboard_endpoints_populated():
 def test_severity_homophone_does_not_force_clarify():
     # Browser STT often hears "low" as "law"; an explicit "severity law"
     # should fuzzy-resolve to low and log the WO instead of asking again.
+    # (Includes a fault so all required fields are present — fault_code is
+    # required, so the only thing under test is the severity homophone.)
     r = client.post("/voice", json={
-        "transcript": "combiner box B inspection pass severity law",
+        "transcript": "inverter nine offline severity law",
         "session_id": "s-homophone",
     })
     body = r.json()
