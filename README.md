@@ -82,7 +82,7 @@ The backend (`backend/`) and the frontend (`apps/web/`) run as two services.
 Two services: backend on **Render**, frontend on **Vercel**.
 
 **Backend (Render)** — New Web Service, root directory `backend`:
-- Build: `pip install -r requirements-full.txt`
+- Build: `pip install -r requirements-deploy.txt`
 - Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 - Add the keys above as environment variables, plus `CORS_ORIGINS` set to your
   Vercel URL.

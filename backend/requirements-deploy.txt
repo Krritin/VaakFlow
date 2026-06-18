@@ -1,0 +1,9 @@
+# Production deps for Render — real providers, no heavy ML.
+# The reranker (sentence-transformers/torch) and the vector store (chromadb)
+# fall back gracefully when missing, so they're left out to keep the build
+# light and fit a small free-tier instance. NIM embeddings go over httpx.
+-r requirements.txt
+
+groq>=0.11        # Groq Llama (agent) + Whisper (speech-to-text)
+neo4j>=5.20       # Aura knowledge graph
+supabase>=2.6     # Postgres work orders + activity feed
