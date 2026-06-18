@@ -34,3 +34,7 @@ yarn-error.log*
 
 # --- Local planning docs (not pushed) ---
 VaakFlow_Project_Plan.md
+
+# --- TypeScript / Next build artifacts ---
+*.tsbuildinfo
+next-env.d.ts
