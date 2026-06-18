@@ -155,7 +155,6 @@ export interface Stats {
   low: number;
   logged_today: number;
   closed_today: number;
-  avg_confidence: number;
   active_workers: number;
   by_status: { open: number; in_progress: number; closed: number };
   by_severity: { low: number; medium: number; high: number; critical: number };

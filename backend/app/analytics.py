@@ -79,7 +79,6 @@ def stats(worker_id: str | None = None) -> dict:
 
     logged_today = 0
     closed_today = 0
-    confidences: list[float] = []
     workers: set[str] = set()
 
     for r in rows:
@@ -106,18 +105,12 @@ def stats(worker_id: str | None = None) -> dict:
             if closed_on == today:
                 closed_today += 1
 
-        conf = r.get("confidence")
-        if isinstance(conf, (int, float)):
-            confidences.append(float(conf))
-
         wid = r.get("worker_id")
         if wid:
             workers.add(wid)
 
     # Escalations = live high/critical work orders that aren't closed.
     escalations_count = sum(1 for r in rows if _is_escalation(r))
-
-    avg_confidence = round(sum(confidences) / len(confidences), 3) if confidences else 0.0
 
     return {
         "total": len(rows),
@@ -131,7 +124,6 @@ def stats(worker_id: str | None = None) -> dict:
         "low": by_severity["low"],
         "logged_today": logged_today,
         "closed_today": closed_today,
-        "avg_confidence": avg_confidence,
         "active_workers": len(workers),
         "by_status": dict(by_status),
         "by_severity": dict(by_severity),
