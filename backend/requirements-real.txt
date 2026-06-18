@@ -1,0 +1,19 @@
+# Lean REAL provider stack — the SDKs you actually need to go from mocks to
+# live services, with NO heavy ML deps (no torch / sentence-transformers).
+#   pip install -r requirements-real.txt
+#
+# Verify after install + adding keys to .env:  curl localhost:8000/health
+-r requirements.txt
+
+groq>=0.11                 # Tier 1: Llama-3.3-70B (LLM) + Whisper STT
+google-generativeai>=0.8   # Tier 2: Gemini embeddings (+ multimodal LLM)
+neo4j>=5.20                # Tier 4: AuraDB knowledge graph
+supabase>=2.6              # Tier 3: Postgres work-order store + realtime
+
+# NVIDIA NIM embeddings (Tier 2, alternative to Gemini) use the OpenAI-compatible
+# REST endpoint over httpx (already in requirements.txt) — no extra SDK needed.
+#
+# NOTE: chromadb + sentence-transformers (in requirements-full.txt) are OPTIONAL
+# extras — a persistent vector store and a local cross-encoder reranker. They are
+# NOT required: the built-in in-memory vector store + real embeddings above
+# already deliver real semantic RAG.

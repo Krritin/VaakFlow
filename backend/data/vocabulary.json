@@ -1,0 +1,65 @@
+{
+  "domain": "solar-farm-maintenance",
+  "asset_prefixes": {
+    "INV": "inverter",
+    "CB": "combiner box",
+    "TX": "transformer",
+    "STR": "PV string"
+  },
+  "assets": ["INV-07", "INV-08", "INV-12", "CB-B", "TX-01"],
+  "sites": ["SITE-Bengaluru-3"],
+  "procedures": [
+    "IV-curve trace",
+    "insulation resistance test",
+    "thermal imaging scan",
+    "string reconnection",
+    "MPPT recalibration",
+    "combiner fuse replacement"
+  ],
+  "parts": [
+    "MC4-connector",
+    "string-fuse-15A",
+    "DC-isolator",
+    "MPPT-module",
+    "cooling-fan",
+    "surge-arrestor"
+  ],
+  "fault_codes": {
+    "INV-LOWOUT": "low output power",
+    "INV-OFFLINE": "inverter offline / no communications",
+    "INV-OVERTEMP": "over-temperature derating",
+    "INV-GNDFLT": "ground fault detected",
+    "STR-OPEN": "open string / broken connection",
+    "CB-FUSE": "blown combiner fuse",
+    "TX-OILTEMP": "transformer oil temperature high"
+  },
+  "phrase_to_fault": {
+    "low output": "INV-LOWOUT",
+    "not making power": "INV-LOWOUT",
+    "no power": "INV-LOWOUT",
+    "low power": "INV-LOWOUT",
+    "underperforming": "INV-LOWOUT",
+    "offline": "INV-OFFLINE",
+    "no comms": "INV-OFFLINE",
+    "not communicating": "INV-OFFLINE",
+    "overheat": "INV-OVERTEMP",
+    "over temperature": "INV-OVERTEMP",
+    "too hot": "INV-OVERTEMP",
+    "derating": "INV-OVERTEMP",
+    "ground fault": "INV-GNDFLT",
+    "earth fault": "INV-GNDFLT",
+    "open string": "STR-OPEN",
+    "broken string": "STR-OPEN",
+    "blown fuse": "CB-FUSE",
+    "combiner fuse": "CB-FUSE",
+    "oil temperature": "TX-OILTEMP",
+    "transformer hot": "TX-OILTEMP"
+  },
+  "severity_words": {
+    "critical": ["critical", "emergency", "fire", "smoke", "sparking", "burning", "arc flash", "shock"],
+    "high": ["high", "urgent", "severe", "major", "tripped", "shutdown", "shut down"],
+    "medium": ["medium", "moderate", "degraded", "intermittent"],
+    "low": ["low", "minor", "cosmetic", "small"]
+  },
+  "whisper_prompt": "Solar farm field maintenance log. Equipment codes: inverter INV-07, INV-08, combiner box CB-B, PV string, MPPT, transformer TX-01. Faults: low output, ground fault, offline, over-temperature derating, blown fuse. Parts: MC4 connector, string fuse 15A, DC isolator, MPPT module."
+}

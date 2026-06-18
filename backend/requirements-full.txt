@@ -1,0 +1,20 @@
+# Full provider stack — install to switch from mocks to real services.
+#   pip install -r requirements-full.txt
+-r requirements.txt
+
+# LLMs
+groq>=0.11                  # Llama 3.3 70B (fast/voice) + Whisper STT
+google-generativeai>=0.8    # Gemini Flash (multimodal/long) + embeddings
+
+# RAG
+chromadb>=0.5               # persistent vector store
+sentence-transformers>=3.0  # bge-reranker-base cross-encoder
+
+# Memory / data
+neo4j>=5.20                 # Aura knowledge graph
+supabase>=2.6               # Postgres + realtime + auth
+
+# Agents / protocol / tracing
+mcp>=1.1                    # MCP tool server
+langchain-core>=0.3
+langsmith>=0.1              # tracing + threads
