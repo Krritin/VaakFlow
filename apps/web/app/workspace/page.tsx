@@ -14,7 +14,6 @@ import {
 } from "../../lib/api";
 import {
   num,
-  pct,
   relativeTime,
   severityLabel,
   severityTone,
@@ -170,12 +169,6 @@ function WorkspaceInner({ workerId, name }: { workerId: string; name: string }) 
           value={num(queued)}
           sub={online ? "Queue drains on reconnect" : "Offline — saving locally"}
           accent={queued > 0 ? "amber" : "green"}
-        />
-        <KpiCard
-          label="Avg confidence"
-          value={loaded ? pct(stats?.avg_confidence) : "—"}
-          sub="Across your reports"
-          accent="teal"
         />
       </div>
 
