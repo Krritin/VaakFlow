@@ -21,7 +21,6 @@ import {
 import {
   intentLabel,
   num,
-  pct,
   relativeTime,
   severityColor,
   severityTone,
@@ -503,7 +502,7 @@ function DashboardInner() {
               accent="green"
               sub={
                 <span className="faint">
-                  {num(stats.closed)} closed all-time · {pct(stats.avg_confidence)} avg conf
+                  {num(stats.closed)} closed all-time
                 </span>
               }
             />
