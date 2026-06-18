@@ -1,0 +1,36 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# --- Env / secrets ---
+.env
+.env.local
+*.local.env
+
+# --- Generated data ---
+backend/data/chroma/
+backend/data/*.sqlite
+backend/data/*.sqlite-*
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-error.log*
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/
+
+# --- Claude local settings (personal, not shared) ---
+.claude/settings.local.json
+
+# --- Local planning docs (not pushed) ---
+VaakFlow_Project_Plan.md

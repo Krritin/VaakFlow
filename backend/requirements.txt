@@ -1,0 +1,11 @@
+# Core runtime — enough to run VaakFlow end-to-end in MOCK mode (no API keys).
+# Real providers live in requirements-full.txt and are imported lazily.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.4
+python-multipart>=0.0.9
+python-dotenv>=1.0
+httpx>=0.27
+langgraph>=0.2.40
+langgraph-checkpoint-sqlite>=2.0
