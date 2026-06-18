@@ -170,6 +170,12 @@ function WorkspaceInner({ workerId, name }: { workerId: string; name: string }) 
           sub={online ? "Queue drains on reconnect" : "Offline — saving locally"}
           accent={queued > 0 ? "amber" : "green"}
         />
+        <KpiCard
+          label="Total logged"
+          value={loaded ? num(stats?.total) : "—"}
+          sub="All your work orders"
+          accent="teal"
+        />
       </div>
 
       <div style={{ marginBottom: 18 }}>
