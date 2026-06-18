@@ -1,117 +1,105 @@
-# ⚡ VaakFlow — Voice-First AI Assistant for Field Workers
+# 🎙️ VaakFlow — Voice-First AI Assistant for Field Workers
 
-Hands-free field assistant for **solar-farm maintenance**: a technician logs an
-inspection, queries equipment history, creates/closes work orders, and escalates
-faults **entirely by voice** — online or offline — while a supervisor dashboard
-updates in real time.
+Hands-free assistant for solar-farm maintenance. A technician logs inspections,
+asks about equipment history, and creates / closes / escalates work orders
+entirely by voice — online or offline — while a supervisor dashboard updates live.
 
-> **This repo is the runnable foundation.** It boots **end-to-end with zero API
-> keys** (every provider has a deterministic mock) and lights up real services
-> when you add keys. See [`docs/`](./docs) for the architecture and runbooks.
+Assignment #11 (Voice AI). Everything runs on free tiers — Groq, NVIDIA NIM,
+Supabase, and Neo4j AuraDB.
 
----
+## Stack
 
-## Quickstart (no API keys needed)
+- **Frontend** — Next.js 14 (App Router, TypeScript), PWA with an offline queue
+- **Backend** — FastAPI + a LangGraph state machine (router → extract / query /
+  action / escalate / clarify)
+- **MCP** — work-order tools (create / update / close + spec / history)
+- **Groq** — `llama-3.3-70b-versatile` (agent) + `whisper-large-v3` (speech-to-text)
+- **NVIDIA NIM** — `nv-embedqa-e5-v5` (1024-dim embeddings for RAG)
+- **Supabase** — Postgres (work orders + activity feed)
+- **Neo4j AuraDB** — equipment knowledge graph (faults + repair history)
+- **Browser Web Speech** — text-to-speech (free, on-device)
 
-```bash
-# Backend  (terminal 1)
-cd backend
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-PYTHONPATH=. uvicorn app.main:app --reload --port 8000
+## Architecture
 
-# Frontend (terminal 2)
-cd apps/web
-npm install
-npm run dev
+```
+Worker PWA ──audio──▶ /transcribe ──▶ Groq Whisper
+   │  Web Speech TTS      /voice ─────▶ LangGraph agent (Groq Llama-70b)
+   │  IndexedDB queue          router → extract / query / action / escalate / clarify
+   │  offline sync ─▶ /sync         tools: create / update / close work order (MCP)
+   ▼                                hybrid RAG: NIM embeddings + Neo4j graph
+Supervisor /dashboard ◀── polls ── backend ── Supabase (work_orders · activity · alerts)
 ```
 
-Or run both at once: `./scripts/dev.sh`
+## Setup
 
-Then open:
-- **http://localhost:3000** — worker app (tap to speak, or type a note)
-- **http://localhost:3000/dashboard** — supervisor board
-- **http://localhost:8000/docs** — backend API (Swagger)
+The backend (`backend/`) and the frontend (`apps/web/`) run as two services.
 
-> The mic uses the browser **Web Speech API** (real STT/TTS, on-device, free).
-> Use **Chrome/Edge** for speech; everywhere else, the typed-note box works the
-> same path. Speech needs `localhost` or HTTPS.
+1. **Get the keys** (all free, no card):
+   - `GROQ_API_KEY` — https://console.groq.com/keys
+   - `NVIDIA_NIM_API_KEY` — https://build.nvidia.com
+   - `SUPABASE_URL`, `SUPABASE_KEY` (service role) — Supabase → Project Settings → API
+   - `NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD` — https://console.neo4j.io (AuraDB Free)
 
-## Try these (mock mode understands them)
-| Say / type | What happens |
-| :-- | :-- |
-| "inverter seven string two low output, severity high, I isolated the string" | Logs **WO-1042**, extracts asset/fault/severity, **escalates** (high) |
-| "inverter eight is offline" | Asks back — **clarify** ("what's the severity?") |
-| "what faults has inverter seven had and how were they fixed?" | **Hybrid graph+RAG** answer with sources, < 3s |
-| "close that one, parts ordered" | Closes the last WO via **session memory** |
-| "emergency, smoke and sparking from inverter twelve" | **Escalation** sub-agent → critical WO + dashboard alert |
+2. **Database** — paste [backend/supabase/schema.sql](backend/supabase/schema.sql)
+   into the Supabase SQL editor and run it.
 
-Every reply includes an **agent trace** (toggle in the UI) showing the exact
-node path the turn took.
+3. **Backend** (terminal 1):
+   ```bash
+   cd backend
+   cp .env.example .env          # paste your keys
+   python3 -m venv .venv && source .venv/bin/activate
+   pip install -r requirements-full.txt
+   PYTHONPATH=. python ../scripts/seed_neo4j.py     # seed the knowledge graph
+   PYTHONPATH=. uvicorn app.main:app --reload --port 8000
+   ```
 
----
+4. **Frontend** (terminal 2):
+   ```bash
+   cd apps/web
+   npm install
+   npm run dev
+   ```
 
-## What works right now (mock mode)
-- ✅ Voice round-trip: push-to-talk → `/voice` → spoken reply (Web Speech STT/TTS)
-- ✅ **LangGraph** state machine: router → extract / query / action / escalate /
-  clarify, checkpointed (thread per worker session)
-- ✅ Schema-constrained **extraction** + validation + clarify-by-voice loop
-- ✅ **Hybrid RAG**: query-rewrite → vector (in-mem/Chroma) + **graph** facts →
-  re-rank → corrective-RAG confidence gate → grounded answer
-- ✅ **MCP tool layer** for work orders (`create`/`update`/`close` + spec/history)
-- ✅ Short-term (session) + long-term (per-worker) **memory**
-- ✅ **Escalation** handoff → critical WO + alert
-- ✅ **Offline**: IndexedDB queue + `/sync` drain on reconnect (PWA + service worker)
-- ✅ Supervisor **dashboard** (live board + alerts + activity feed)
-- ✅ `evals/` — 5 success metrics as a green pass/fail table; CI runs tests + evals
+5. Open **http://localhost:3000** (worker) and **/dashboard** (supervisor).
+   Check **http://localhost:8000/health** to see which providers are live.
 
-## Going real
-All mocks swap to real providers via `backend/.env` — see
-[`docs/mock-mode.md`](./docs/mock-mode.md). Quick version:
-```bash
-cp backend/.env.example backend/.env          # add GROQ/GEMINI/NEO4J/SUPABASE keys
-pip install -r backend/requirements-full.txt  # real provider SDKs
-curl localhost:8000/health                     # confirms which are live
-```
+> Speech uses the browser Web Speech API, so use Chrome/Edge for the mic. The
+> typed-note box works the same path everywhere else.
 
----
+## Voice commands (examples)
 
-## Repo layout
-```
-VaakFlow/
-├─ apps/web/              # Next.js PWA — worker (/) + dashboard (/dashboard)
-├─ backend/
-│  └─ app/
-│     ├─ main.py          # FastAPI: /voice /transcribe /sync /work_orders ...
-│     ├─ graph/           # LangGraph: state.py, nodes.py, build.py
-│     ├─ rag/             # chunk, embed, store, rerank, retrieve, ingest
-│     ├─ mcp_server/      # MCP tools (work orders) + FastMCP server
-│     ├─ db/ graphdb/     # work-order store (Supabase/mem) + graph (Neo4j/mem)
-│     ├─ memory/          # short_term (thread) + long_term (per-worker)
-│     ├─ llm.py stt.py    # provider abstractions (mock + lazy real)
-│     └─ schemas.py       # Pydantic work-order schema (extraction target)
-├─ knowledge_base/        # solar manuals (RAG source)
-├─ scripts/               # seed_neo4j.py, ingest_kb.py, dev.sh
-├─ evals/                 # success-metric harness
-├─ docs/                  # architecture, sdk-vs-framework, mock-mode
-└─ .github/workflows/     # CI (tests + evals + frontend build)
-```
+- *"Inverter seven, string two, low output, severity high, I isolated the string."*
+  → creates a work order and escalates it (high severity)
+- *"Inverter eight is offline."* → asks back for the severity, then logs it
+- *"When was the last time inverter nine was checked?"* → answers with the date
+  and the worker who did it, from the log
+- *"What faults has inverter seven had and how were they fixed?"* → hybrid
+  graph + RAG answer
+- *"Close that one, parts ordered."* → closes the last work order (session memory)
 
-## Tests & evals
+## Deploy
+
+Two services: backend on **Render**, frontend on **Vercel**.
+
+**Backend (Render)** — New Web Service, root directory `backend`:
+- Build: `pip install -r requirements-full.txt`
+- Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Add the keys above as environment variables, plus `CORS_ORIGINS` set to your
+  Vercel URL.
+
+**Frontend (Vercel)** — Import the repo, root directory `apps/web`:
+- Set `NEXT_PUBLIC_API_BASE` to your Render backend URL.
+
+## Tests
+
 ```bash
 cd backend && source .venv/bin/activate
-PYTHONPATH=. pytest -q                       # backend smoke tests
-PYTHONPATH=. python ../evals/run_evals.py    # 5 success metrics
+PYTHONPATH=. pytest -q                        # smoke tests
+PYTHONPATH=. python ../evals/run_evals.py     # 5 success metrics
 ```
 
 ## Docs
-- [Architecture](./docs/architecture.md) — surfaces, request flow, endpoints
+
+- [Architecture](./docs/architecture.md)
+- [Real-API setup](./docs/real-apis.md)
 - [LangGraph vs Agent SDK](./docs/sdk-vs-framework.md)
-- [Mock → real runbook](./docs/mock-mode.md)
-
-## Roadmap (next checklist items, per plan §14)
-Real provider wiring (Groq/Gemini/Neo4j/Supabase) · MCP-over-protocol client ·
-LangSmith tracing · deploy (Vercel + HF Spaces) · Hinglish bonus.
-
----
-*100% free-tier stack. Build mode: demo-grade — every feature works end-to-end.*
